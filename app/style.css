@@ -20,11 +20,13 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
+  background: var(--paper);
 }
+/* body stays transparent so the bubble layer below shows through the cream page */
 body {
   margin: 0;
   color: var(--ink);
-  background: var(--paper);
+  background: transparent;
   font-family: var(--body);
   font-size: 14px;
   line-height: 1.55;
@@ -3467,5 +3469,20 @@ td small {
   }
   .zone-selection > .button {
     width: 100%;
+  }
+}
+
+/* Champagne Fizz background: fixed behind all content, never blocks clicks */
+.champagne-fizz {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+@media print {
+  .champagne-fizz {
+    display: none;
   }
 }

@@ -1,5 +1,6 @@
 import "./style.css";
 import Header from "@/components/header";
+import ChampagneFizz from "@/components/champagne-fizz";
 import Link from "next/link";
 export const metadata = {
   title: {
@@ -13,6 +14,7 @@ export default function Layout({ children }) {
   return (
     <html lang="en">
       <body>
+        <ChampagneFizz />
         <Header />
         <main id="main-content">{children}</main>
         <footer className="footer">
