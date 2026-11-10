@@ -5,7 +5,7 @@ import Discover from "@/components/discover";
 export const dynamic = "force-dynamic";
 export default async function Home() {
   const events = await query(
-    `SELECT e.*,MIN(l.price) AS from_price,COUNT(l.id) AS ticket_count FROM events e LEFT JOIN listings l ON l.event_id=e.id AND l.status='available' AND EXISTS(SELECT 1 FROM users u WHERE u.id=l.seller_id AND u.status='active' AND u.role='seller' AND u.seller_application='approved') GROUP BY e.id ORDER BY e.event_date`,
+    `SELECT e.*,MIN(l.price) AS from_price,COUNT(l.id) AS ticket_count FROM events e LEFT JOIN (SELECT l.id,l.event_id,l.price FROM listings l JOIN users u ON u.id=l.seller_id WHERE l.status='available' AND u.status='active' AND u.role='seller' AND u.seller_application='approved') l ON l.event_id=e.id GROUP BY e.id ORDER BY e.event_date`,
   );
   return (
     <>

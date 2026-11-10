@@ -85,7 +85,7 @@ async function handle(req, ctx) {
     if (key === "events" && method === "GET")
       return ok(
         await query(
-          `SELECT e.*,MIN(l.price) AS from_price,COUNT(l.id) AS ticket_count FROM events e LEFT JOIN listings l ON l.event_id=e.id AND l.status='available' AND EXISTS(SELECT 1 FROM users s WHERE s.id=l.seller_id AND s.status='active' AND s.role='seller' AND s.seller_application='approved') GROUP BY e.id ORDER BY e.event_date`,
+          `SELECT e.*,MIN(l.price) AS from_price,COUNT(l.id) AS ticket_count FROM events e LEFT JOIN (SELECT l.id,l.event_id,l.price FROM listings l JOIN users s ON s.id=l.seller_id WHERE l.status='available' AND s.status='active' AND s.role='seller' AND s.seller_application='approved') l ON l.event_id=e.id GROUP BY e.id ORDER BY e.event_date`,
         ),
       );
     if (path[0] === "events" && path.length === 2 && method === "GET") {
