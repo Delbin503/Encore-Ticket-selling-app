@@ -24,12 +24,6 @@ export default function Layout({ children }) {
             </Link>
             <p>For the love of live.</p>
           </div>
-          <div>
-            <p>DIT205 · Toe Htet Arkar · 6808344</p>
-            <p className="fine">
-              Student project · Fictional events · Payments are simulated
-            </p>
-          </div>
           <Link href="/about">How Encore works ↗</Link>
         </footer>
       </body>

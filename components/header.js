@@ -37,8 +37,11 @@ export default function Header() {
           Encore<span>✳</span>
         </Link>
         <nav aria-label="Main navigation">
-          <Link className={path === "/" ? "active" : ""} href="/#discover">
-            Discover
+          <Link
+            className={path.startsWith("/browse") ? "active" : ""}
+            href="/browse"
+          >
+            Browse
           </Link>
           <Link
             className={path.startsWith("/sell") ? "active" : ""}

@@ -4,7 +4,15 @@ import Link from "next/link";
 import { Icon, Photo, Star } from "./ui";
 import { date, money } from "@/lib/format";
 const genres = ["All", "Pop", "Indie", "Rock", "Hip-Hop", "R&B", "EDM"];
-export default function Discover({ events }) {
+// layout="carousel" (home page) scrolls sideways; layout="grid" (Browse page) shows every concert.
+export default function Discover({
+  events,
+  layout = "carousel",
+  id = "discover",
+  eyebrow = "THE GOOD STUFF STARTS HERE",
+  title = "Find your kind of loud",
+}) {
+  const grid = layout === "grid";
   const [search, setSearch] = useState(""),
     [genre, setGenre] = useState("All");
   const track = useRef(null);
@@ -47,7 +55,10 @@ export default function Discover({ events }) {
         .includes(search.toLowerCase()),
   );
   return (
-    <section id="discover" className="discover section-wrap">
+    <section
+      id={id}
+      className={`discover section-wrap${grid ? " browse" : ""}`}
+    >
       <div className="search-bar">
         <Icon name="search" size={24} />
         <input
@@ -62,9 +73,10 @@ export default function Discover({ events }) {
       </div>
       <div className="section-head">
         <div>
-          <span className="eyebrow">THE GOOD STUFF STARTS HERE</span>
+          <span className="eyebrow">{eyebrow}</span>
           <h2>
-            Find your kind of loud<span className="coral">.</span>
+            {title}
+            <span className="coral">.</span>
           </h2>
         </div>
         <span className="result-count">
@@ -83,40 +95,42 @@ export default function Discover({ events }) {
             </button>
           ))}
         </div>
-        <div
-          className="carousel-controls"
-          aria-label="Concert carousel controls"
-        >
-          <button
-            type="button"
-            className="carousel-arrow previous"
-            aria-label="Previous concerts"
-            aria-controls="concert-carousel"
-            disabled={!edges.previous}
-            onClick={() => move(-1)}
+        {!grid && (
+          <div
+            className="carousel-controls"
+            aria-label="Concert carousel controls"
           >
-            <Icon />
-          </button>
-          <button
-            type="button"
-            className="carousel-arrow"
-            aria-label="Next concerts"
-            aria-controls="concert-carousel"
-            disabled={!edges.next}
-            onClick={() => move(1)}
-          >
-            <Icon />
-          </button>
-        </div>
+            <button
+              type="button"
+              className="carousel-arrow previous"
+              aria-label="Previous concerts"
+              aria-controls="concert-carousel"
+              disabled={!edges.previous}
+              onClick={() => move(-1)}
+            >
+              <Icon />
+            </button>
+            <button
+              type="button"
+              className="carousel-arrow"
+              aria-label="Next concerts"
+              aria-controls="concert-carousel"
+              disabled={!edges.next}
+              onClick={() => move(1)}
+            >
+              <Icon />
+            </button>
+          </div>
+        )}
       </div>
       <div
-        className="event-grid"
-        id="concert-carousel"
+        className={`event-grid${grid ? " browse-grid" : ""}`}
+        id={grid ? undefined : "concert-carousel"}
         ref={track}
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription={grid ? undefined : "carousel"}
         aria-label="Concerts"
-        tabIndex={0}
+        tabIndex={grid ? undefined : 0}
       >
         {filtered.map((e, i) => (
           <Link href={`/concerts/${e.id}`} className="event-card" key={e.id}>

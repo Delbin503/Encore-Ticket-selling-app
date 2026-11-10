@@ -1,12 +1,16 @@
 import Link from "next/link";
-import { query } from "@/lib/db";
+import { Fragment } from "react";
+import { listEvents } from "@/lib/events";
 import { Icon, Photo, Star } from "@/components/ui";
 import Discover from "@/components/discover";
 export const dynamic = "force-dynamic";
+const MARQUEE_WORDS = [
+  "FANS FIRST",
+  "LOUDER TOGETHER",
+  "MORE MUSIC. MORE MEMORIES.",
+];
 export default async function Home() {
-  const events = await query(
-    `SELECT e.*,MIN(l.price) AS from_price,COUNT(l.id) AS ticket_count FROM events e LEFT JOIN (SELECT l.id,l.event_id,l.price FROM listings l JOIN users u ON u.id=l.seller_id WHERE l.status='available' AND u.status='active' AND u.role='seller' AND u.seller_application='approved') l ON l.event_id=e.id GROUP BY e.id ORDER BY e.event_date`,
-  );
+  const events = await listEvents();
   return (
     <>
       <section className="hero section-wrap">
@@ -55,9 +59,23 @@ export default async function Home() {
         </div>
       </section>
       <div className="marquee" aria-hidden="true">
-        <span>FANS FIRST</span>✳<span>LOUDER TOGETHER</span>✳
-        <span>MORE MUSIC. MORE MEMORIES.</span>✳<span>FANS FIRST</span>✳
-        <span>LOUDER TOGETHER</span>
+        {/* Two identical groups slide left together, so the loop is seamless */}
+        <div className="marquee-track">
+          {[0, 1].map((copy) => (
+            <div className="marquee-group" key={copy}>
+              {[
+                ...MARQUEE_WORDS,
+                ...MARQUEE_WORDS,
+                ...MARQUEE_WORDS,
+                ...MARQUEE_WORDS,
+              ].map((word, i) => (
+                <Fragment key={i}>
+                  <span>{word}</span>✳
+                </Fragment>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
       <Discover events={JSON.parse(JSON.stringify(events))} />
       <section className="community section-wrap">

@@ -445,13 +445,38 @@ main {
   color: var(--butter);
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  gap: 35px;
   overflow: hidden;
   font-size: 18px;
   white-space: nowrap;
 }
-.marquee > span {
+/* Auto-scrolling strip: the track holds two identical groups and moves left by
+   exactly one group, so the loop has no visible jump. */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 72s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+.marquee-group {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  padding-right: 35px;
+  flex-shrink: 0;
+}
+@keyframes marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+.marquee span {
   font-weight: 700;
   font-size: 10px;
   letter-spacing: 2px;
@@ -786,9 +811,6 @@ main {
 .footer p {
   font-size: 11px;
   margin-top: 8px;
-}
-.footer .fine {
-  font-size: 10px;
 }
 .footer > a {
   font-weight: 650;
@@ -2432,11 +2454,12 @@ td small {
   }
   .marquee {
     height: 38px;
-    gap: 20px;
-    justify-content: start;
-    padding: 0 20px;
   }
-  .marquee > span {
+  .marquee-group {
+    gap: 20px;
+    padding-right: 20px;
+  }
+  .marquee span {
     font-size: 8px;
   }
   .discover {
@@ -2594,12 +2617,6 @@ td small {
     align-items: start;
     flex-wrap: wrap;
     gap: 24px;
-  }
-  .footer > div:nth-child(2) {
-    width: 100%;
-    order: 3;
-    border-top: 1px solid var(--line);
-    padding-top: 12px;
   }
   .footer > .logo {
     font-size: 28px;
@@ -3491,5 +3508,38 @@ td small {
   }
   .champagne-fizz {
     display: none;
+  }
+}
+
+/* Browse page: every concert in a wrapping grid instead of the home carousel */
+.browse-page .discover {
+  padding-top: 44px;
+  padding-bottom: 80px;
+}
+.event-grid.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 26px 20px;
+  overflow: visible;
+  scroll-snap-type: none;
+  padding: 7px 0 0;
+}
+.event-grid.browse-grid .event-card {
+  flex: none;
+}
+@media (max-width: 980px) {
+  .event-grid.browse-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 740px) {
+  .event-grid.browse-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 14px;
+  }
+}
+@media (max-width: 540px) {
+  .event-grid.browse-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
