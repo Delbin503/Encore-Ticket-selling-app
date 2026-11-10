@@ -3481,7 +3481,14 @@ td small {
   z-index: -1;
   pointer-events: none;
 }
+/* once the canvas paints the hero's yellow itself, let bubbles show through it */
+.fizz-hero .hero:before {
+  background: transparent;
+}
 @media print {
+  .fizz-hero .hero:before {
+    background: var(--butter);
+  }
   .champagne-fizz {
     display: none;
   }

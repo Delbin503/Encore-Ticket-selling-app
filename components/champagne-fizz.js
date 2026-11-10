@@ -31,6 +31,7 @@ export default function ChampagneFizz() {
     let lastTime = 0;
     let spawnAccumulator = 0;
     let frame = 0;
+    let hero = null;
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -137,17 +138,27 @@ export default function ChampagneFizz() {
       }
     }
 
-    // Champagne gold, deepened slightly so it reads on the cream page.
+    // On the cream page bubbles are champagne gold; over the yellow hero they
+    // blend to white with cobalt rims so they stay visible on yellow.
+    const mix = (from, to, t) => from.map((v, i) => Math.round(v + (to[i] - v) * t)).join(",");
+    const BLEND = 48; // px over which the colour changes at the hero's edges
+    function heroAmount(y) {
+      if (!hero) return 0;
+      const inside = Math.min(y - hero.top, hero.bottom - y);
+      return Math.max(0, Math.min(1, inside / BLEND + 0.5));
+    }
+
     function drawBubble(b) {
       const r = b.radius;
       if (r < 0.5) return;
       const fade = Math.min(b.age * 3, 1);
       const a = b.opacity * fade;
+      const t = heroAmount(b.y);
       ctx.beginPath();
       ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(214, 170, 92, ${a * 0.22})`;
+      ctx.fillStyle = `rgba(${mix([214, 170, 92], [255, 255, 255], t)}, ${a * (0.22 + 0.33 * t)})`;
       ctx.fill();
-      ctx.strokeStyle = `rgba(176, 128, 52, ${a * 0.55})`;
+      ctx.strokeStyle = `rgba(${mix([176, 128, 52], [25, 41, 213], t)}, ${a * (0.55 - 0.15 * t)})`;
       ctx.lineWidth = Math.max(0.6, r * 0.09);
       ctx.stroke();
       if (r > 1.5) {
@@ -207,13 +218,35 @@ export default function ChampagneFizz() {
       }
     }
 
+    // The hero's yellow is painted here (full width, like its CSS backdrop) so
+    // bubbles can rise through it. Once painted, the CSS backdrop is switched off.
+    const butter =
+      getComputedStyle(document.documentElement).getPropertyValue("--butter").trim() || "#fff2a9";
+    function measureHero() {
+      const el = document.querySelector(".hero");
+      if (!el) {
+        hero = null;
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      hero = { top: rect.top, bottom: rect.bottom };
+    }
+
     function render(timestamp) {
       if (!lastTime) lastTime = timestamp;
       let dt = Math.min((timestamp - lastTime) / 1000, 0.05);
       lastTime = timestamp;
       if (reduceMotion.matches) dt = 0;
       ctx.clearRect(0, 0, width, height);
-      spawnAccumulator += BUBBLE_RATE * dt * 60;
+      measureHero();
+      if (hero && hero.bottom > 0 && hero.top < height) {
+        ctx.fillStyle = butter;
+        ctx.fillRect(0, hero.top, width, hero.bottom - hero.top);
+      }
+      document.documentElement.classList.toggle("fizz-hero", !!hero);
+      // Fewer bubbles on narrow screens so text stays easy to read on phones.
+      const rate = BUBBLE_RATE * Math.max(0.35, Math.min(1, width / 1280));
+      spawnAccumulator += rate * dt * 60;
       while (spawnAccumulator >= 1) {
         spawnBubble();
         spawnAccumulator -= 1;
@@ -244,6 +277,7 @@ export default function ChampagneFizz() {
     frame = requestAnimationFrame(render);
     return () => {
       cancelAnimationFrame(frame);
+      document.documentElement.classList.remove("fizz-hero");
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onLeave);
